@@ -1,0 +1,117 @@
+
+function main(workbook: ExcelScript.Workbook) {
+  let selectedSheet = workbook.getActiveWorksheet();
+
+  const usedRange = selectedSheet.getUsedRange();
+  const rows = usedRange.getRowCount();
+  const cols = usedRange.getColumnCount();
+
+  let attributes: Array<string> = [];
+  let lineTokens: Array<string> = [];
+  let lines : Array<string> = [];
+  let abapValueCode:string = "";
+
+
+  const configurationSheet = workbook.getWorksheet("#CONFIG");
+  let configData: ConfigData_I[] = [];
+
+  if (configurationSheet)
+  {
+    const configurationRange = configurationSheet.getUsedRange();
+    var configuration = configurationRange.getTexts();
+
+    configData = returnObjectFromValues(configuration);
+  }
+
+
+
+
+  for (let row = 0; row < rows; row++) {
+
+    for (let col = 0; col < cols; col++) {
+      let currentValue = usedRange.getCell(row,col).getValue().toString();
+
+      if (row === 0) {
+        attributes.push(currentValue);
+      } else {
+
+        let attributeConfig = configData.find(x => x.table === selectedSheet.getName()
+                                                && x.attribute === attributes[col] )
+
+        let convertedABAP = convertAttributeAndValueToABAP(attributes[col], currentValue, attributeConfig);
+        
+        if (convertedABAP !== "" ) lineTokens.push(convertedABAP);
+      }
+    }
+
+    if (row !== 0) {
+      lines.push("  ( " + lineTokens.join(" ") + " )");
+    }
+
+    lineTokens = [];
+  }
+
+  abapValueCode = lines.join("\n");
+
+  abapValueCode = `DATA(${selectedSheet.getName()}) = VALUE #(\n${abapValueCode}\n);`;
+
+  console.log(abapValueCode);
+}
+
+function convertAttributeAndValueToABAP(attribute: string, value: string, config: ConfigData_I): string {
+
+  let abapValue:string = "";
+  let abapCode:string = "";
+
+  if (!config)
+  {
+    abapCode = `${attribute} = '${value}'`;
+
+    return abapCode;
+  }
+
+  if (config.ignore.toLowerCase() === "x") return "";
+
+  if (config.ignore_if_empty.toLowerCase() === "x" && value === "") return "";
+
+  if (config.alpha !== "" ) {
+
+    abapValue = value.padStart(+config.alpha,'0');
+
+  }
+
+  abapCode = `${attribute} = '${abapValue}'`;
+
+  return abapCode;
+}
+
+
+// FROM JSON EXAMPLE
+function returnObjectFromValues(values: string[][]): ConfigData_I[] {
+  let objectArray: ConfigData_I[] = [];
+  let objectKeys: string[] = [];
+  for (let i = 0; i < values.length; i++) {
+    if (i === 0) {
+      objectKeys = values[i];
+      continue;
+    }
+
+    let object = {};
+    for (let j = 0; j < values[i].length; j++) {
+      object[objectKeys[j]] = values[i][j];
+    }
+
+    objectArray.push(object as ConfigData_I);
+  }
+
+  return objectArray;
+}
+
+
+interface ConfigData_I {
+  table: string;
+  attribute: string;
+  ignore: string;
+  ignore_if_empty: string;
+  alpha: string;
+}
