@@ -5,7 +5,7 @@ Convert Excel Sheets to ABAP Value-Statements
 > Repository is under heavy development!
 
 ## Motivation
-In order to simplyfy unit tests in SAP ABAP, this script enables you to maintain test data in Microsoft Excel and export it to ABAP `VALUE` statements, which can be used in ABAP SQL Test Double Framework.
+In order to simplify unit tests in SAP ABAP, this script enables you to maintain test data in Microsoft Excel and export it to ABAP `VALUE` statements, which can be used in ABAP SQL Test Double Framework.
 
 ### Default Conversion
 #### Source Data
