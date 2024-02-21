@@ -53,30 +53,32 @@ function main(workbook: ExcelScript.Workbook) {
 
   abapValueCode = lines.join("\n");
 
-  abapValueCode = `DATA(${selectedSheet.getName()}) = VALUE #(\n${abapValueCode}\n);`;
+  abapValueCode = `${selectedSheet.getName()}_MOCK_DATA = VALUE #(\n${abapValueCode}\n).`;
 
   console.log(abapValueCode);
 }
 
 function convertAttributeAndValueToABAP(attribute: string, value: string, config: ConfigData_I): string {
 
-  let abapValue:string = "";
+  let abapValue:string = value;
   let abapCode:string = "";
 
   if (!config)
   {
-    abapCode = `${attribute} = '${value}'`;
+    abapCode = `${attribute} = '${abapValue}'`;
 
     return abapCode;
   }
 
+
+
   if (config.ignore.toLowerCase() === "x") return "";
 
-  if (config.ignore_if_empty.toLowerCase() === "x" && value === "") return "";
+  if (config.ignore_if_empty.toLowerCase() === "x" && abapValue === "") return "";
 
   if (config.alpha !== "" ) {
 
-    abapValue = value.padStart(+config.alpha,'0');
+    abapValue = abapValue.padStart(+config.alpha,'0');
 
   }
 
