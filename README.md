@@ -65,6 +65,10 @@ DATA(LIPS_MOCK_DATA) = VALUE #(
   * `ignore_if_empty` - if set to `x` **and** if the value (cell) is empty, he attribute with its value won't be exported to the `VALUE` statement.
   * `alpha` - adds leding zeroes to to fit the donoted length.
 
+
+> [!CAUTION]  
+> Material numbers (`MATNR`) shouldn't be converted with the simple `ALPHA` conversion as this could lead to wrong results (e.g. field length extension S/4 HANA). Use alpha method of this script with caution.
+
 ## ABAP Unit Test
 
 ```abap
