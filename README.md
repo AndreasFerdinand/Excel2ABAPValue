@@ -69,6 +69,11 @@ DATA(LIPS_MOCK_DATA) = VALUE #(
 > [!CAUTION]  
 > Material numbers (`MATNR`) shouldn't be converted with the simple `ALPHA` conversion as this could lead to wrong results (e.g. field length extension S/4 HANA). Use alpha method of this script with caution.
 
+### Converting Data
+* Click `Automate` and `New Script` in Ribbon bar.
+* Copy & Paste the script from [test](Excel2ABAPValue.osts) to the code editor
+* Click `Run`
+
 ## ABAP Unit Test
 
 ```abap
