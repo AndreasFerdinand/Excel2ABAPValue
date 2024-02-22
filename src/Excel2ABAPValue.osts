@@ -8,15 +8,14 @@ function main(workbook: ExcelScript.Workbook) {
 
   let attributes: Array<string> = [];
   let lineTokens: Array<string> = [];
-  let lines : Array<string> = [];
-  let abapValueCode:string = "";
+  let lines: Array<string> = [];
+  let abapValueCode: string = "";
 
 
   const configurationSheet = workbook.getWorksheet("#CONFIG");
   let configData: ConfigData_I[] = [];
 
-  if (configurationSheet)
-  {
+  if (configurationSheet) {
     const configurationRange = configurationSheet.getUsedRange();
     var configuration = configurationRange.getTexts();
 
@@ -29,18 +28,18 @@ function main(workbook: ExcelScript.Workbook) {
   for (let row = 0; row < rows; row++) {
 
     for (let col = 0; col < cols; col++) {
-      let currentValue = usedRange.getCell(row,col).getValue().toString();
+      let currentValue = usedRange.getCell(row, col).getValue().toString();
 
       if (row === 0) {
         attributes.push(currentValue);
       } else {
 
         let attributeConfig = configData.find(x => x.table === selectedSheet.getName()
-                                                && x.attribute === attributes[col] )
+          && x.attribute === attributes[col])
 
         let convertedABAP = convertAttributeAndValueToABAP(attributes[col], currentValue, attributeConfig);
-        
-        if (convertedABAP !== "" ) lineTokens.push(convertedABAP);
+
+        if (convertedABAP !== "") lineTokens.push(convertedABAP);
       }
     }
 
@@ -53,36 +52,42 @@ function main(workbook: ExcelScript.Workbook) {
 
   abapValueCode = lines.join("\n");
 
-  abapValueCode = `${selectedSheet.getName()}_MOCK_DATA = VALUE #(\n${abapValueCode}\n).`;
+  abapValueCode = `DATA(${selectedSheet.getName()}) = VALUE #(\n${abapValueCode}\n);`;
 
   console.log(abapValueCode);
 }
 
 function convertAttributeAndValueToABAP(attribute: string, value: string, config: ConfigData_I): string {
 
-  let abapValue:string = value;
-  let abapCode:string = "";
+  let abapValue: string = "";
+  let abapCode: string = "";
 
-  if (!config)
-  {
-    abapCode = `${attribute} = '${abapValue}'`;
+  if (!config) {
+    abapCode = `${attribute} = '${value}'`;
 
     return abapCode;
   }
 
-
-
   if (config.ignore.toLowerCase() === "x") return "";
 
-  if (config.ignore_if_empty.toLowerCase() === "x" && abapValue === "") return "";
+  if (config.ignore_if_empty.toLowerCase() === "x" && value === "") return "";
 
-  if (config.alpha !== "" ) {
+  if (config.alpha !== "") {
 
-    abapValue = abapValue.padStart(+config.alpha,'0');
+    abapValue = value.padStart(+config.alpha, '0');
 
   }
 
-  abapCode = `${attribute} = '${abapValue}'`;
+  if (!config.no_quotes)
+  {
+    abapValue = `'${abapValue}'`;
+  }
+
+  if (config.wrap_value) {
+    abapValue = `${config.wrap_value}( ${abapValue} )`
+  }
+
+  abapCode = `${attribute} = ${abapValue}`;
 
   return abapCode;
 }
@@ -116,4 +121,6 @@ interface ConfigData_I {
   ignore: string;
   ignore_if_empty: string;
   alpha: string;
+  no_quotes: string;
+  wrap_value: string;
 }
