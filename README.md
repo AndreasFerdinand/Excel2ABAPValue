@@ -61,10 +61,11 @@ DATA(LIPS_MOCK_DATA) = VALUE #(
 * Add the following columns
   * `table` - references the name of the sheet
   * `attribute` - table attribute
-  * `ignore` - if set to `x` the attribute with its value won't be exported to the `VALUE` statement. Can be used for comments.
-  * `ignore_if_empty` - if set to `x` **and** if the value (cell) is empty, he attribute with its value won't be exported to the `VALUE` statement.
-  * `alpha` - adds leding zeroes to to fit the donoted length.
-
+  * `ignore` - If set to `x` the attribute with its value won't be exported to the `VALUE` statement. Can be used for comments.
+  * `ignore_if_empty` - If set to `x` **and** if the value (cell) is empty, he attribute with its value won't be exported to the `VALUE` statement.
+  * `alpha` - Adds leding zeroes to to fit the donoted length.
+  * `no_quotes` - If set to `x` the value won't be wrapped into quotes
+  * `wrap_values` - wraps the value with a method call, to manipulate the value at runtime at initialization.
 
 > [!CAUTION]  
 > Material numbers (`MATNR`) shouldn't be converted with the simple `ALPHA` conversion as this could lead to wrong results (e.g. field length extension S/4 HANA). Use alpha method of this script with caution.
